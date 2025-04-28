@@ -11,7 +11,7 @@ const startBot = async () => {
 
   const sock = makeWASocket({
     auth: state,
-    printQRInTerminal: false,
+    printQRInTerminal: true,
   });
 
   // Menampilkan QR code ke terminal saat diminta login
@@ -22,23 +22,23 @@ const startBot = async () => {
       qrcode.generate(qr, { small: true });
     }
 
+
     if (connection === 'close') {
       const shouldReconnect =
         lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
-      console.log('Koneksi terputus. Reconnect?', shouldReconnect);
+        console.log('Koneksi terputus. Reconnect?', shouldReconnect);
       if (shouldReconnect) {
         startBot();
       }
     } else if (connection === 'open') {
-      console.log('✅ Bot terhubung ke WhatsApp!');
+      console.log('✅ Bot terhubung ke WhatsApp! ===>>>');
     }
   });
 
-  // Simpan auth credentials
-  sock.ev.on('creds.update', saveCreds);
-
-  // Handler pesan masuk
+  // Simpan auth cre  // Handler pesan masuk
   sock.ev.on('messages.upsert', async ({ messages, type }) => {
+    if (type !== 'notify') return;
+
     const msg = messages[0];
     if (!msg.message) return;
 
@@ -46,7 +46,7 @@ const startBot = async () => {
     const text =
       msg.message.conversation || msg.message.extendedTextMessage?.text;
 
-    console.log('📩 Pesan diterima:', text);
+    console.log('📩 Pesan diterima:', text, msg);
 
     if (text?.toLowerCase() === 'halo') {
       await sock.sendMessage(sender, { text: 'Hai juga! 👋' });
